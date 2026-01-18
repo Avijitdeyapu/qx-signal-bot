@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QX Signal Bot</title>
+    <style>
+        body { background: #0b1118; color: white; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #1a2634; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 85%; max-width: 400px; }
+        #signal { font-size: 30px; font-weight: bold; margin: 20px 0; min-height: 40px; }
+        #price { font-size: 18px; color: #8895a7; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 id="pair">EUR/USD</h2>
+        <div id="signal">CONNECTING...</div>
+        <div id="price">Fetching Market Data...</div>
+    </div>
+    <script>
+        async function fetchSignal() {
+            try {
+                const r = await fetch('/api/signal');
+                const d = await r.json();
+                
+                if(d.signal) {
+                    document.getElementById('signal').innerText = d.signal;
+                    document.getElementById('signal').style.color = d.color;
+                    document.getElementById('price').innerText = `Price: ${d.price} | RSI: ${d.rsi}`;
+                }
+            } catch(e) {
+                document.getElementById('signal').innerText = "OFFLINE";
+                document.getElementById('signal').style.color = "red";
+            }
+        }
+        setInterval(fetchSignal, 10000);
+        fetchSignal();
+    </script>
+</body>
+</html>
