@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QX PRO - Multi-Timeframe</title>
+    <style>
+        body { background: #0b1118; color: white; font-family: sans-serif; margin: 0; padding: 10px; }
+        .tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { background: #1a2634; border: 1px solid #333; color: white; padding: 8px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; min-width: 60px; }
+        .tab-btn.active { background: #2ecc71; border-color: #2ecc71; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+        .card { background: #1a2634; padding: 15px; border-radius: 12px; text-align: center; border-bottom: 3px solid #333; }
+        .pair-name { font-size: 13px; color: #aaa; margin-bottom: 8px; }
+        .signal { font-size: 16px; font-weight: bold; margin: 8px 0; }
+        .price { font-size: 12px; color: #8895a7; }
+        h2 { text-align: center; margin-bottom: 5px; color: #2ecc71; font-size: 20px; }
+        .footer { text-align: center; font-size: 10px; color: #555; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>QX PRO SIGNALS</h2>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="changeTimeframe('1m', this)">1 MIN</button>
+        <button class="tab-btn" onclick="changeTimeframe('5m', this)">5 MIN</button>
+        <button class="tab-btn" onclick="changeTimeframe('10m', this)">10 MIN</button>
+        <button class="tab-btn" onclick="changeTimeframe('15m', this)">15 MIN</button>
+        <button class="tab-btn" onclick="changeTimeframe('20m', this)">20 MIN</button>
+        <button class="tab-btn" onclick="changeTimeframe('30m', this)">30 MIN</button>
+    </div>
+
+    <div class="grid" id="signal-grid">
+        <div style="text-align:center; width:100%;">Connecting...</div>
+    </div>
+
+    <div class="footer">Real-time Technical Analysis from TradingView</div>
+
+    <script>
+        let currentTimeframe = '1m';
+
+        async function updateSignals() {
+            try {
+                const res = await fetch(`/api/signals?timeframe=${currentTimeframe}`);
+                const data = await res.json();
+                const grid = document.getElementById('signal-grid');
+                grid.innerHTML = '';
+                
+                data.forEach(item => {
+                    grid.innerHTML += `
+                        <div class="card" style="border-color: ${item.color}">
+                            <div class="pair-name">${item.pair}</div>
+                            <div class="signal" style="color: ${item.color}">${item.signal}</div>
+                            <div class="price">Price: ${item.price}</div>
+                        </div>
+                    `;
+                });
+            } catch (e) { console.log("Updating..."); }
+        }
+
+        function changeTimeframe(tf, btn) {
+            currentTimeframe = tf;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateSignals();
+        }
+
+        setInterval(updateSignals, 7000); // ৭ সেকেন্ড পরপর আপডেট
+        updateSignals();
+    </script>
+</body>
+</html>
